@@ -47,11 +47,16 @@ public partial class Player2D : Area2D
 
 		}
 
+		Position += velocity * (float)delta;
+		Position = new Vector2(
+				x: Mathf.Clamp(Position.X, 0, ScreenSize.X),
+				y: Mathf.Clamp(Position.Y, 0, ScreenSize.Y)
+		);
 	}
 
 	public override void _Draw()
 	{
-		DrawRect(new Rect2(0.0f, 0.0f, 100.0f, 100.0f), Colors.Green, true);
+		DrawRect(new Rect2(0.0f, 0.0f, 100.0f, 100.0f), Colors.Green, false, 5.0f);
 	}
 
 
