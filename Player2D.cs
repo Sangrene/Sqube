@@ -1,10 +1,19 @@
 using Godot;
 using System;
 
-public partial class Player2D : Area2D
+public partial class Player2D : CharacterBody2D
 {
+	public Vector2 SmoothedMousePos;
+
+	[Signal]
+	public delegate void HitEventHandler();
+
 	[Export]
-	public int Speed = 400; // How fast the player will move (pixels/sec).
+	public int Speed { get; set; } = 400;
+
+	public Dash Dash;
+	public int DashSpeed = 4000;
+	public float DashDuration = 0.3f;
 
 	public Vector2 ScreenSize; // Size of the game window.
 
@@ -12,52 +21,56 @@ public partial class Player2D : Area2D
 	public override void _Ready()
 	{
 		ScreenSize = GetViewportRect().Size;
+		Dash = GetNode<Dash>("Dash");
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	private Vector2 GetMoveDirection()
+	{
+		return new Vector2(
+				Convert.ToInt32(Input.IsActionPressed("move_right")) - Convert.ToInt32(Input.IsActionPressed("move_left")),
+				Convert.ToInt32(Input.IsActionPressed("move_backward")) - Convert.ToInt32(Input.IsActionPressed("move_forward"))
+			);
+	}
+
+
+	private Vector2 ComputeBaseMovement()
+	{
+
+		Vector2 moveDirection = GetMoveDirection();
+		return moveDirection.Normalized() * (float)Speed;
+
+	}
+
+	private Vector2 ComputeDashMovement()
+	{
+		if (Input.IsActionJustPressed("space") && !Dash.IsDashing())
+		{
+			Dash.StartDash(DashDuration);
+			return GetMoveDirection().Normalized() * (float)DashSpeed;
+		}
+		return new Vector2(0, 0);
+	}
+
+	private void ComputeRotation()
+	{
+		SmoothedMousePos = SmoothedMousePos.Lerp(GetGlobalMousePosition(), 0.3f);
+		LookAt(SmoothedMousePos);
+	}
+
 	public override void _Process(double delta)
 	{
-		var velocity = Vector2.Zero; // The player's movement vector.
-
-		if (Input.IsActionPressed("move_right"))
-		{
-			velocity.X += 1;
-		}
-
-		if (Input.IsActionPressed("move_left"))
-		{
-			velocity.X -= 1;
-		}
-
-		if (Input.IsActionPressed("move_backward"))
-		{
-			velocity.Y += 1;
-		}
-
-		if (Input.IsActionPressed("move_forward"))
-		{
-			velocity.Y -= 1;
-		}
-
-		var player = this;
-
-		if (velocity.Length() > 0)
-		{
-			velocity = velocity.Normalized() * Speed;
-
-		}
-
-		Position += velocity * (float)delta;
-		Position = new Vector2(
-				x: Mathf.Clamp(Position.X, 0, ScreenSize.X),
-				y: Mathf.Clamp(Position.Y, 0, ScreenSize.Y)
-		);
+		ComputeRotation();
+		Velocity = ComputeBaseMovement();
+		Velocity += ComputeDashMovement();
+		MoveAndSlide();
 	}
 
-	public override void _Draw()
+	private void OnBodyEntered(Node2D body)
 	{
-		DrawRect(new Rect2(0.0f, 0.0f, 100.0f, 100.0f), Colors.Green, false, 5.0f);
-	}
 
+		EmitSignal(SignalName.Hit);
+		// Must be deferred as we can"t change physics properties on a physics callback.
+		GetNode<CollisionShape2D>("CollisionShape2D").SetDeferred(CollisionShape2D.PropertyName.Disabled, true);
+	}
 
 }
