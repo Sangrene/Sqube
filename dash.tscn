@@ -7,3 +7,9 @@ script = ExtResource("1_wqd1m")
 
 [node name="DashTimer" type="Timer" parent="."]
 one_shot = true
+
+[node name="GhostTimer" type="Timer" parent="."]
+wait_time = 0.03
+
+[connection signal="timeout" from="DashTimer" to="." method="OnDashTimerTimeout"]
+[connection signal="timeout" from="GhostTimer" to="." method="OnTimerTimeout"]

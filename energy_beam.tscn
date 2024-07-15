@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://bd46w2umff57f"]
+
+[ext_resource type="Shader" path="res://energy_beam.gdshader" id="1_f30vv"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_abflr"]
+shader = ExtResource("1_f30vv")
+shader_parameter/beams = 1
+shader_parameter/energy = 5.0
+shader_parameter/roughness = 1
+shader_parameter/frequency = 13
+shader_parameter/speed = 2.0
+shader_parameter/thickness = 0.1
+shader_parameter/outline_thickness = 0.036
+shader_parameter/beam_difference = 0.157
+shader_parameter/glow = 0.539
+shader_parameter/outline_glow = 0.0
+shader_parameter/color = Color(1, 1, 1, 1)
+shader_parameter/outline_color = Color(0.827221, 0.371727, 0.327698, 1)
+shader_parameter/progress = 1.0
+shader_parameter/y_offset = 0.0
+shader_parameter/fixed_edge_size = 0.067
+shader_parameter/noise_scale = Vector2(1, 1)
+
+[node name="ColorRect" type="ColorRect"]
+material = SubResource("ShaderMaterial_abflr")
+offset_right = 387.0
+offset_bottom = 42.0
+color = Color(1, 1, 1, 0)

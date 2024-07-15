@@ -45,7 +45,7 @@ public partial class Player2D : CharacterBody2D
 	{
 		if (Input.IsActionJustPressed("space") && !Dash.IsDashing())
 		{
-			Dash.StartDash(DashDuration);
+			Dash.StartDash(DashDuration, this, GetNode<ColorRect>("ColorRect"));
 			return GetMoveDirection().Normalized() * (float)DashSpeed;
 		}
 		return new Vector2(0, 0);
